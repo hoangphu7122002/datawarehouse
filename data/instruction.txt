@@ -1,0 +1,3 @@
+- run dgscli here to generate *.csv
+- with *.csv run convert.py to create insert.sql
+- move insert.sql to sql_command

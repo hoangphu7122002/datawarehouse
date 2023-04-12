@@ -1,0 +1,6 @@
+LOAD DATA INFILE '/home/hadoop_user/data/inventory.csv'
+INTO TABLE inventory
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
