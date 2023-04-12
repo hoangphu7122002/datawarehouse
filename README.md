@@ -1,9 +1,11 @@
-####spark-submit el
+####spark-submit ingest
 ```shell
-spark-submit --packages mysql:mysql-connector-java:8.0.32 project_warehouse/etl.py --table_name orders --exe_date 2023-04-10
+spark-submit --packages mysql:mysql-connector-java:8.0.32 project_warehouse/ingest.py --table_name orders --exe_date 2023-04-10
+```
 
-#spark-sumbit transform
-spark-submit project_warehouse/transformation.py --exe_date 2023-04-10
+####spark-sumbit etl
+```shell
+spark-submit project_warehouse/etl.py --exe_date 2023-04-10
 ```
 
 ####start hiveserver and beeline
