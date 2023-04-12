@@ -1,14 +1,15 @@
-####spark-submit ingest
+### instruction
+#### spark-submit ingest
 ```shell
 spark-submit --packages mysql:mysql-connector-java:8.0.32 project_warehouse/ingest.py --table_name orders --exe_date 2023-04-10
 ```
 
-####spark-sumbit etl
+#### spark-sumbit etl
 ```shell
 spark-submit project_warehouse/etl.py --exe_date 2023-04-10
 ```
 
-####start hiveserver and beeline
+#### start hiveserver and beeline
 ```shell
 - create hive in hadoop:
 hdfs dfs -mkdir /tmp
@@ -30,7 +31,7 @@ $HIVE_HOME/bin/hive --service metastore
 $HIVE_HOME/bin/beeline -n hadoop_user -u jdbc:hive2://master:10000
 ```
 
-####start apache superset
+#### start apache superset
 ```shell
 export FLASK_APP=superset
 export SUPERSET_CONFIG_PATH=/home/hadoop_user/superset_config.py
