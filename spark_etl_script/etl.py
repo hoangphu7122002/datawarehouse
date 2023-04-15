@@ -72,8 +72,13 @@ resultDf.write \
         .saveAsTable("reports.daily_gross_revenue")
 
 print("----------------------------DONE!!-----------------------------------")
+tblLocation = "hdfs://master:9000/errors/order_error"
 
-#tblLocation = "hdfs://master:9000/user/hive/warehouse/reports/daily_gross_revenue"
+df_null.write. \
+	partitionBy("year","month","day"). \
+	mode("append") \
+	.parquet(tblLocation)
+
 
 #resultDf.write \
 #				.format("hive") \
