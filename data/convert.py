@@ -19,6 +19,8 @@ def construct_string_sql(file_path, table_name):
             for row in reader:
                 row = [convert(x) for x in row].__str__()[1:-1]
                 string_SQL += f'INSERT INTO {table_name}({headers}) VALUES ({row});\n'
+                string_SQL = string_SQL.replace('\'\'','NULL')
+                # print(string_SQL)
     except:
         return ''
 

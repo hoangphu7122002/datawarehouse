@@ -24,9 +24,9 @@ day = runTime[2]
 
 #create spark session
 spark = SparkSession.builder \
-										.master('local[*]') \
-										.appName("ETL from MYSQL to HIVE") \
-										.getOrCreate()
+		.master('local[*]') \
+		.appName("ETL from MYSQL to HIVE") \
+		.getOrCreate()
 
 #get the lastest record_id in datalake
 sc = spark.sparkContext
@@ -46,15 +46,19 @@ print(tblQuery)
 print("!!!!!!!!!!!!!!!!")
 #get latest records from mysql
 jdbcDF = spark.read.format("jdbc") \
-				 .option("url","jdbc:mysql://localhost:3306/test_demo") \
-				 .option("user","root") \
-				 .option("password","071202") \
+	 .option("url","jdbc:mysql://localhost:3306/test_demo") \
+	 .option("user","root") \
+	 .option("password","071202") \
 				 .option("dbtable",tblQuery) \
 				 .option("driver",'com.mysql.jdbc.Driver') \
 				 .load()
 
 #save to data lake
 outputDF = jdbcDF.withColumn("year",lit(year)) \
-								 .withColumn("month",lit(month)) \
-								 .withColumn("day",lit(day))
-outputDF.write.partitionBy("year","month","day").mode("append").parquet(tblLocation)
+				 .withColumn("month",lit(month)) \
+				 .withColumn("day",lit(day))
+outputDF. \
+		write. \
+		partitionBy("year","month","day"). \
+		mode("append") \
+		.parquet(tblLocation)
