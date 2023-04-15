@@ -27,8 +27,9 @@ CREATE TABLE order_detail (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	order_id INT,
 	user_id INT, 
-	total INT,
+	total BIGINT,
 	payment VARCHAR(20),
+	unit VARCHAR(10),
 	PRIMARY KEY(id)
 );
 
