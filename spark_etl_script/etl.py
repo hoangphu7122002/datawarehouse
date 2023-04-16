@@ -1,8 +1,21 @@
-from util import *
 import argparse
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col,lit,sum,udf,when
+from pyspark.sql.types import StringType,IntegerType
+
+def convert_date(x):
+    if '/' in x:
+        ele = x.split('/')
+    else:
+        ele = x.split('-')
+    if len(ele[0]) == 4:
+        return ele[0] + '-' + ele[1] + '-' + ele[2]
+    return ele[2] + '-' + ele[1] + '-' + ele[0]
+
+def convert_vnd_to_dollar(x):
+    return int(x) * 40
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--exe_date")
@@ -32,18 +45,20 @@ productsDf = spark.read.parquet("hdfs://master:9000/datalake/product").drop("yea
 inventoryDf = spark.read.parquet("hdfs://master:9000/datalake/inventory").drop("year","month","day")
 
 #get null df
-null_df_orders = ordersDf.withColumn("null_flag",lit("Y"))
-null_df_ordersDetail = orderDetailDf.join(null_df_orders,col("orderDetailDf.user_id").isNull() | col("orderDetailDf.total").isNull() | col("orderDetailDf.id") == col("null_df_orders") | col("orderDetailDf.order_id").isNull(),'left_outer')
-df_null = null_df_ordersDetail.union(null_df_orders)
+null_df_orders = ordersDf.filter(col("quantity").isNull() | col("created_at").isNull())
+#null_df_ordersDetail = orderDetailDf.filter(col("user_id").isNull() | col("total").isNull())
+df_null = null_df_orders.join(orderDetailDf, null_df_orders["product_id"] == orderDetailDf["order_id"],'left_outer')
+
 #remove null and convert date
 dateUdf = udf(convert_date,StringType())
 ordersDf = ordersDf.na.drop()
-ordersDf = ordersDf.withColumn("created_at",dateUdf)
+ordersDf.filter(col("quantity").isNull() | col("created_at").isNull()).show()
+ordersDf = ordersDf.withColumn("created_at",dateUdf(col("created_at")))
 
 #remove null and convert dollar
-dollarUdf = udf(convert_vnd_to_dollar,IntType())
-orderDetailDf = orderDetailDf.na.drop()
-orderDetailDf = orderDetailDf.withColumn("total",when(col("unit") == "VND").otherwise(col("total")))
+dollarUdf = udf(convert_vnd_to_dollar,IntegerType())
+#orderDetailDf = orderDetailDf.na.drop()
+orderDetailDf = orderDetailDf.withColumn("total",when(col("unit") == "VND",dollarUdf(col("total"))).otherwise(col("total")))
 
 
 preDF = ordersDf.filter(ordersDf["created_at"] == exe_date) \
@@ -74,8 +89,7 @@ resultDf.write \
 print("----------------------------DONE!!-----------------------------------")
 tblLocation = "hdfs://master:9000/errors/order_error"
 
-df_null.write. \
-	partitionBy("year","month","day"). \
+df_null.drop("id").write. \
 	mode("append") \
 	.parquet(tblLocation)
 
